@@ -23,12 +23,12 @@ func Listen() {
 
   mux.Handle("/app/*", apiCfg.MiddlewareMetricsInc(http.StripPrefix("/app/", http.FileServer(http.Dir("./internal/server/static")))))
 
-  mux.HandleFunc("/healthz", func(w http.ResponseWriter, req *http.Request) {
+  mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, req *http.Request) {
     w.WriteHeader(200)
     w.Write([]byte("OK"))
   })
 
-  mux.HandleFunc("/metrics", func(w http.ResponseWriter, req *http.Request) {
+  mux.HandleFunc("GET /metrics", func(w http.ResponseWriter, req *http.Request) {
     w.WriteHeader(200)
     w.Write([]byte(fmt.Sprintf("Hits: %d", apiCfg.fileserverHits)))
   })
