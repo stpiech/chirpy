@@ -1,6 +1,6 @@
 package main
 
-import "github.com/stpiech/chirpy/cmd/internal/server"
+import "github.com/stpiech/chirpy/internal/server"
 
 func main() {
   server.Listen()
