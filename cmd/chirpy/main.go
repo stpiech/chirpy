@@ -1,11 +1,7 @@
 package main
 
-import (
-	"net/http"
-)
+import "github.com/stpiech/chirpy/cmd/internal/server"
 
 func main() {
-  mux := http.NewServeMux()
-  server := http.Server { Handler: mux, Addr: ":8080" } 
-  server.ListenAndServe()
+  server.Listen()
 }
