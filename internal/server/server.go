@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type apiConfig struct {
@@ -46,47 +47,64 @@ func Listen() {
     }
 
     type response struct {    
-      Error string `json:"error,omitempty"`
-      Valid bool `json:"valid"`
+      CleanedBody string `json:"cleaned_body"`
     }
-
-    w.Header().Set("Content-Type", "application/json")
 
     decoder := json.NewDecoder(req.Body)
     params := parameters{}
     err := decoder.Decode(&params)
 
     if err != nil {
-      log.Println(err)
-      w.WriteHeader(500)
+      respondWithError(w, 500, "Something went wrong")
       return
     }
 
     if len(params.Body) > 140 {
-      w.WriteHeader(400)
-      data := response{ Error: "Chirp is too long", Valid: false }
-      jsonData, err := json.Marshal(data)
-      if err != nil {
-        log.Println(err)
-        w.WriteHeader(500)
-        return
-      }
-      w.Write(jsonData)
+      respondWithError(w, 400, "Chirp is too long")
       return
     }
 
-    data := response { Valid: true }
-    jsonData, err := json.Marshal(data)
-    if err != nil {
-      log.Println(err)
-      w.WriteHeader(500)
-      return
+    bannedWords := map[string]bool {
+      "kerfuffle": true,
+      "sharbert": true,
+      "fornax": true,
     }
 
-    w.WriteHeader(200)
-    w.Write(jsonData)
+    words := strings.Split(params.Body, " ")  
+    for i, word := range words {
+      _, wordBanned := bannedWords[strings.ToLower(word)]
+
+      if wordBanned {
+        words[i] = "****"
+      } 
+    }
+
+    data := response { CleanedBody: strings.Join(words, " ") }
+    respondWithJSON(w, 200, data)
   })
 
   server := http.Server { Handler: mux, Addr: ":8080" } 
   log.Fatal(server.ListenAndServe())
+}
+
+func respondWithError(w http.ResponseWriter, code int, msg string) {
+  type errorType struct {
+    Message string `json:"message"`
+  }
+  
+  respondWithJSON(w, code, errorType { msg })
+}
+
+func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
+  w.Header().Set("Content-Type", "application/json")
+  w.WriteHeader(code)
+
+  jsonMsg, err := json.Marshal(payload)
+  
+  if err != nil {
+    w.WriteHeader(500)
+    return
+  }
+
+  w.Write(jsonMsg)
 }
