@@ -3,11 +3,42 @@ package endpoints
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/stpiech/chirpy/internal/database"
 	"github.com/stpiech/chirpy/internal/server/helpers"
 )
+
+func ShowChirp(w http.ResponseWriter, req *http.Request) {
+  id := req.PathValue("chirpId")
+  intId, err := strconv.Atoi(id)
+  if err != nil {
+    helpers.RespondWithError(w, 422, "Can't convert ID to int")
+    return
+  }
+
+  data, err := database.Data()  
+  if err != nil {
+    helpers.RespondWithError(w, 500, "")
+    return
+  }
+
+  for _, v := range data.Chirps {
+    if v.Id == intId {
+      jsonChirp, err := json.Marshal(v) 
+      if err != nil {
+        helpers.RespondWithError(w, 500, "")
+        return
+      }
+
+      w.Write(jsonChirp)
+      return
+    }
+  }
+
+  w.WriteHeader(404)
+}
 
 func CreateChirp(w http.ResponseWriter, req *http.Request) {
   var params database.Chirp  

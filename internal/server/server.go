@@ -26,8 +26,10 @@ func Listen() {
 
   mux.HandleFunc("GET /api/healthz", endpoints.Healthz)
   mux.HandleFunc("GET /api/reset", func(w http.ResponseWriter, req *http.Request) { endpoints.Reset(w, req, &apiCfg.fileserverHits) })
+
   mux.HandleFunc("POST /api/chirps", endpoints.CreateChirp)
   mux.HandleFunc("GET /api/chirps", endpoints.IndexChirps)
+  mux.HandleFunc("GET /api/chirps/{chirpId}", endpoints.ShowChirp)
 
   mux.HandleFunc("GET /admin/metrics", func(w http.ResponseWriter, req *http.Request) { endpoints.Metrics(w, req, &apiCfg.fileserverHits) })
 
