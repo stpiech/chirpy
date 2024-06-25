@@ -10,6 +10,12 @@ import (
 var databaseFile string = "database.json"
 var DatabaseMux sync.RWMutex
 
+type User struct {
+  Id int `json:"id"`
+  Email string `json:"email"`
+  Password string `json:"password,omitempty"`
+}
+
 type Chirp struct {
   Id int `json:"id"`
   Body string `json:"body"`
@@ -17,6 +23,7 @@ type Chirp struct {
 
 type databaseStructure struct {
   Chirps []Chirp `json:"chirps"`
+  Users []User `json:"users"`
 }
 
 func Data() (databaseStructure, error) {
@@ -35,6 +42,36 @@ func Data() (databaseStructure, error) {
   }
 
   return structuredData, nil
+}
+
+func WriteUser(dataToWrite User) (User, error) {
+  data, err := Data()
+  if err != nil {
+    return User{}, err
+  }
+
+  DatabaseMux.Lock()
+  defer DatabaseMux.Unlock()
+
+  highestId := 0
+  for _, user := range data.Users {
+    if user.Id > highestId {
+      highestId = user.Id
+    }
+  }
+  recordId := highestId + 1
+  dataToWrite.Id = recordId
+  data.Users = append(data.Users, dataToWrite)
+
+  jsonData, err := json.Marshal(data)
+
+  if err != nil {
+    return User{}, err
+  }
+
+  writeDatabaseFile(jsonData) 
+
+  return dataToWrite, nil
 }
 
 func WriteChirp(dataToWrite Chirp) (Chirp, error) {
@@ -90,5 +127,5 @@ func writeDatabaseFile(data []byte) {
 }
 
 func createDatabaseFile() {
-  os.WriteFile(databaseFile, []byte(`{"chirps": []}`), 0666)
+  os.WriteFile(databaseFile, []byte(`{"chirps": [], "users": []}`), 0666)
 }

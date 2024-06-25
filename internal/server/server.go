@@ -31,6 +31,9 @@ func Listen() {
   mux.HandleFunc("GET /api/chirps", endpoints.IndexChirps)
   mux.HandleFunc("GET /api/chirps/{chirpId}", endpoints.ShowChirp)
 
+  mux.HandleFunc("POST /api/users", endpoints.CreateUser)
+  mux.HandleFunc("POST /api/login", endpoints.LoginUser)
+
   mux.HandleFunc("GET /admin/metrics", func(w http.ResponseWriter, req *http.Request) { endpoints.Metrics(w, req, &apiCfg.fileserverHits) })
 
   server := http.Server { Handler: mux, Addr: ":8080" } 

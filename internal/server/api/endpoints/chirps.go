@@ -63,14 +63,13 @@ func CreateChirp(w http.ResponseWriter, req *http.Request) {
     return
   }
 
-  w.WriteHeader(201)
-
   jsonRecord, err := json.Marshal(record)
   if err != nil {
     helpers.RespondWithError(w, 500, "") 
     return
   }
 
+  w.WriteHeader(201)
   w.Write(jsonRecord)
 }
 
