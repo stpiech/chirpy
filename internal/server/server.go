@@ -32,6 +32,7 @@ func Listen() {
   mux.HandleFunc("GET /api/chirps/{chirpId}", endpoints.ShowChirp)
 
   mux.HandleFunc("POST /api/users", endpoints.CreateUser)
+  mux.HandleFunc("PUT /api/users", endpoints.UpdateUser)
   mux.HandleFunc("POST /api/login", endpoints.LoginUser)
 
   mux.HandleFunc("GET /admin/metrics", func(w http.ResponseWriter, req *http.Request) { endpoints.Metrics(w, req, &apiCfg.fileserverHits) })

@@ -44,6 +44,29 @@ func Data() (databaseStructure, error) {
   return structuredData, nil
 }
 
+func UpdateUser(newUser User) (User, error) {
+  data, err := Data()
+  if err != nil {
+    return User{}, err
+  }
+
+  for i, v := range data.Users {
+    if v.Id == newUser.Id {
+      data.Users[i] = newUser
+    }
+  }
+
+  jsonData, err := json.Marshal(data)
+
+  if err != nil {
+    return User{}, err
+  }
+
+  writeDatabaseFile(jsonData) 
+
+  return newUser, nil
+}
+
 func WriteUser(dataToWrite User) (User, error) {
   data, err := Data()
   if err != nil {
